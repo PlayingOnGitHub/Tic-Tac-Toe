@@ -1,19 +1,25 @@
-/*
-Create a module
-Module creates 2 players inside of itself using an outside factory function?
+<!-- Create players(player1name, mark, player2name, mark) ->
+	-> prototype
+	-> factory function creates from prototype
+	-> create players from factory function based on passed arguments
 
-Basic game goes as:
-    player1 starts the match.
-        -> therefore, when a square is clicked, an event listtener will fire.. The event listener checks for the current player.
-           Since our current player is player1, player1's mark is placed on the grid square.
-                                                Player1's mark is stored for that grid id?
-                                                Check to see if any grid id's line up for player1 to win....
-                                                    If grid id's line up for a match, player1 wins,
-                                                    If grid id's don't line up for a match and all the grid id's are filled, declare a tie.
-                                                    If grid id's dont line up for a match and all the grid id's are not filled up, player2 becomes active player for a turn.
-                                                    That particular function that checks for a match will check the current players id's for a match! Check player1 id's, as an example.
+create event listeners (event listeners call delete listener) [Call play game?]
 
-    player2 now goes next since the grid id's didn't line up for a match and since it's not the end of the game
-        -> Same Stuff
+PlayGame function? -> create the ability to delete event listeners. call init
 
-*/
+init()
+	-> calls render
+	-> calls check game status
+		-> end game or next player
+			-starts new game if end game is true [game status could be an object that gets passed in an earlier stage and
+			 is later checked by init() -> end game()
+				-> this also deletes previous player objects
+	
+	
+
+render( ... data entered by players )
+	-> render calls enterData function to ask user if they want to play 1 player or 2 player if there are no player objects... Call init else {
+		-> render deletes previous screens (screens asking for data) if the screens are present
+		-> render creates a ticTacToe grid if gameboard object array does not exist or is empty and if an html grid is not already present... else {
+			-> render displays X's and O's on grid for each item in gameboard object that is filled with X's and O's
+ -->
