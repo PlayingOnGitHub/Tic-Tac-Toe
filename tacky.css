@@ -1,0 +1,14 @@
+.ticTacToeGrid {
+    display: grid;
+    grid-template-rows: repeat( 3, auto );
+    grid-template-columns: repeat( 3, auto );
+    gap: 0px;
+    width: fit-content;
+    margin: 100px auto;
+}
+
+.ticTacToeGrid div {
+    height: 150px;
+    width: 150px;
+    border: 1px solid black;
+}
