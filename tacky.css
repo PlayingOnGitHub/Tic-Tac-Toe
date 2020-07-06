@@ -1,14 +1,272 @@
-.ticTacToeGrid {
+body {
+    background-color: black;
+}
+
+/* list of tick tack toe styles to create borders */
+.zero {
+    border-top-style: none !important;
+    border-left-style: none !important;
+    border-right-style: none !important;
+}
+
+.one {
+    border-top-style: none !important;
+    border-right-style: none !important;
+}
+
+.two {
+    border-right-style: none !important;
+    border-top-style: none !important;
+}
+
+.three {
+    border-top-style: none !important;
+    border-left-style: none !important;
+    border-right-style: none !important;
+}
+
+.four {
+    border-top-style: none !important;
+    border-right-style: none !important;
+}
+
+.five {
+    border-top-style: none !important;
+    border-right-style: none !important;
+}
+
+.six {
+    border-style: none !important;
+}
+
+.seven {
+    border-top-style: none !important;
+    border-bottom-style: none !important;
+    border-right-style: none !important;
+}
+
+.eight {
+    border-top-style: none !important;
+    border-bottom-style: none !important;
+    border-right-style: none !important;
+}
+
+/* grid and other styles */
+
+#grid {
     display: grid;
     grid-template-rows: repeat( 3, auto );
     grid-template-columns: repeat( 3, auto );
     gap: 0px;
     width: fit-content;
     margin: 100px auto;
+    position: relative;
 }
 
-.ticTacToeGrid div {
+#grid div {
     height: 150px;
     width: 150px;
-    border: 1px solid black;
+    border: 1px solid white;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    font-size: 80px;
+    /* font-style: italic; */
+    font-family: "Delius";
+}
+
+.data-prompt-wrapper {
+    width: 100%;
+    height: 550px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+#data-prompt {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    height: fit-content;
+}
+
+#one-player {
+    width: 270px;
+    height: 200px;
+    background-color: #8c6506;
+    box-shadow: 0px 0px 7px 4px;
+    border-radius: 9px;
+    border-color: transparent;
+}
+
+#two-player {
+    margin-left: 30px;
+    width: 270px;
+    height: 200px;
+    background-color: #512cff;
+    box-shadow: 0px 0px 7px 4px;
+    border-radius: 9px;
+    border-color: transparent;
+}
+
+@keyframes draw-vertical-line {
+    0% {
+        height: 0px;
+    }
+    100% {
+        height: 432px;
+    }
+}
+
+#draw-line-0 {
+    animation-name: draw-vertical-line;
+    animation-duration: 1.5s;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+
+    width: 4px !important;
+    position: absolute !important;
+    top: 8px !important;
+    left: 72px !important;
+    display: block !important;
+    border-style: none !important;
+
+}
+
+#draw-line-1 {
+    animation-name: draw-vertical-line;
+    animation-duration: 1.5s;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+
+    width: 4px !important;
+    position: absolute !important;
+    top: 8px !important;
+    left: 223px !important;
+    display: block !important;
+    border-style: none !important;
+}
+
+#draw-line-2 {
+    animation-name: draw-vertical-line;
+    animation-duration: 1.5s;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+
+    width: 4px !important;
+    position: absolute !important;
+    top: 8px !important;
+    left: 375px !important;
+    display: block !important;
+    border-style: none !important;
+
+}
+
+@keyframes draw-horizontal-line {
+    0% {
+        width: 0px;
+    }
+    100% {
+        width: 432px;
+    }
+}
+
+#draw-line-3 {
+    animation-name: draw-horizontal-line;
+    animation-duration: 1.5s;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+
+    height: 4px !important;
+    position: absolute !important;
+    top: 72px !important;
+    left: 7px !important;
+    display: block !important;
+    border-style: none !important;
+
+}
+
+#draw-line-4 {
+    animation-name: draw-horizontal-line;
+    animation-duration: 1.5s;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+
+    height: 4px !important;
+    position: absolute !important;
+    top: 223px !important;
+    left: 7px !important;
+    display: block !important;
+    border-style: none !important;
+
+}
+
+#draw-line-5 {
+    animation-name: draw-horizontal-line;
+    animation-duration: 1.5s;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+
+    height: 4px !important;
+    position: absolute !important;
+    top: 376px !important;
+    left: 7px !important;
+    display: block !important;
+    border-style: none !important;
+
+}
+
+@keyframes draw-diagonal-line {
+    0% {
+        height: 0px;
+    }
+
+    100% {
+        height: 562px;
+    }
+}
+
+#draw-line-6 {
+    animation-name: draw-diagonal-line;
+    animation-duration: 1.5s;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+
+    width: 5px !important;
+    transform: rotate(-45deg);
+    position: absolute !important;
+    top: 24px !important;
+    left: 19px !important;
+    display: block !important;
+    border-top-style: none !important;
+    transform-origin: 0% 0%;
+
+}
+
+#draw-line-7 {
+    animation-name: draw-diagonal-line;
+    animation-duration: 1.5s;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+
+    width: 5px !important;
+    transform: rotate(45deg);
+    position: absolute !important;
+    top: 27px !important;
+    left: 417px !important;
+    display: block !important;
+    border-top-style: none !important;
+    transform-origin: 0% 0%;
+
+}
+
+.draw-red {
+    background-color: red;
+}
+.draw-blue {
+    background-color: blue;
 }
