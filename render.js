@@ -3,7 +3,7 @@ const ticTacToeModule = (function() {
     const player1 = {name: this.name, mark: this.mark};
     const player2 = {name: this.name, mark: this.mark};
     const gameBoard = { gameBoardArray: [] };
-    const currentStatus = { activePlayer: "Player1", match: false, winner: "none", color: "DEFAULT" };
+    const currentStatus = { activePlayer: "Player1", match: false, winner: "none", color: "DEFAULT", onePlayer: "DEFAULT" };
     const ticTacToe = document.getElementById("ticTacToe");
 
     // this will mix values into player1 and player2 when called
@@ -12,8 +12,9 @@ const ticTacToeModule = (function() {
     }
 
     function init() {
-        render();
         checkForWinner();
+        render();
+        activateTheDestroyer();
     }
 
     function render() {
@@ -25,13 +26,9 @@ const ticTacToeModule = (function() {
             }
         }
         else {
-            // if ( the enter-data-screen is present ) {
-            if ( document.getElementById("data-prompt") ) {
-                deleteDataPrompt();
-                console.log("Deleted data prompt");
-            }
             // If (gameboard object array does not exist or is empty and if an html grid is not already present) {
             if ( gameBoardArray.length == 0 ) {
+                deleteDataPrompt();
                 createGameBoardArray();
                 createTicTacToeGrid();
                 console.log("Created gameBoardArray and ticTacToeGrid");
@@ -40,7 +37,7 @@ const ticTacToeModule = (function() {
                 // render displays X's and O's on grid for each item in gameboard object that is filled with X's and O's
                 console.log("rendering x's and o's");
                 for ( let i = 0; i < 9; i++ ) {
-                    const claimed = gameBoardArray[i].claimed
+                    const claimed = gameBoardArray[i].claimed;
                     if ( claimed != "DEFAULT" ) {
                         let innerHTML = "<p style=\'color:";
                         if ( claimed == "X" ) {
@@ -57,6 +54,26 @@ const ticTacToeModule = (function() {
         }
     }
 
+    function activateTheDestroyer() {
+        if ( currentStatus.onePlayer == true && currentStatus.activePlayer == "Player2" && currentStatus.match != true ) {
+            // the Destroyer is invoked and goes ballastic on its enemies. This ruthless computer can beat any foe! JK
+            deleteTicTacToeListeners();
+            setTimeout( () => { 
+                const gameBoardArray = gameBoard.gameBoardArray;
+                breakout:
+                for ( let i = 0; i <= gameBoardArray.length-1; i++ ) {
+                    if ( gameBoardArray[i].claimed == "DEFAULT" ) {
+                        gameBoardArray[i].claimed = "O";
+                        break breakout;
+                    }
+                }
+                currentStatus.activePlayer = "Player1";
+                recreateTicTacToeListeners();
+                init();
+            }, 1000);
+        }
+    }
+
     function checkForWinner() {
         checkForAMatch();
         if (currentStatus.match == true ) {
@@ -69,6 +86,7 @@ const ticTacToeModule = (function() {
                 currentStatus.winner = "none";
                 currentStatus.match = false;
                 currentStatus.color = "DEFAULT";
+                currentStatus.onePlayer = "DEFAULT";
                 init();
             }, 3000);
         }
@@ -77,40 +95,40 @@ const ticTacToeModule = (function() {
     // implicitly calls init from checkData upon event fire -->
     function createDataPrompt() {
         // renders 2 sections. 1 section says "1 Player" other section says "2 player"
-        const sectionWrapper = ticTacToe.appendChild(document.createElement("div"));
-        sectionWrapper.id = "data-prompt";
-        const section1 = sectionWrapper.appendChild(document.createElement("div"));
-        const section2 = sectionWrapper.appendChild(document.createElement("div"));
-        section1.addEventListener("click", checkData, true);
+        const dataPromptWrapper = ticTacToe.appendChild(document.createElement("div"));
+        dataPromptWrapper.className = "data-prompt-wrapper";
+        const dataPrompt = dataPromptWrapper.appendChild(document.createElement("div"));
+        dataPrompt.id = "data-prompt";
+        const section1 = dataPrompt.appendChild(document.createElement("div"));
+        const section2 = dataPrompt.appendChild(document.createElement("div"));
+        section1.addEventListener("click", checkData.bind(section1), true);
         section1.className = "section1";
         section1.id = "one-player";
-        section2.addEventListener("click", checkData, true);
+        section1.innerText = "1 Player";
+        section2.addEventListener("click", checkData.bind(section2), true);
         section2.className = "section2";
         section2.id = "two-player";
+        section2.innerText = "2 Player";
         console.log("created data prompt");
         // probably for 1 and 2 player for sections! :) Then call another function to getData for a 
         // form with name etc.. then that function will call checkData()
     }
 
     function deleteDataPrompt() {
-        const sectionWrapper = document.getElementById("data-prompt");
+        const dataPromptWrapper = document.querySelector(".data-prompt-wrapper");
         const section1 = document.getElementById("one-player");
         const section2 = document.getElementById("two-player");
         section1.removeEventListener("click", checkData, true);
         section2.removeEventListener("click", checkData, true);
-        sectionWrapper.remove();
+        dataPromptWrapper.remove();
     }
 
     // calls init
     function checkData() {
-        // if ( valid data is passed ) {
-            // get elements as well and then create players
-        //     createPlayer(player1, player1name, player1mark);
-        //     createPlayer(player2, player2name, player2mark);
-        // // }
-        // else {
-        //     deleteDataPrompt()
-        // }
+        const section = this;
+        if (section.id == "one-player" ) {
+            currentStatus.onePlayer = true;
+        }
         createPlayer(player1, "Joey", "X");
         createPlayer(player2, "Michael", "O");
         console.log( "Player1: " + player1.name + " Player2: " + player2.mark );
@@ -132,11 +150,25 @@ const ticTacToeModule = (function() {
     }
 
     function deleteTicTacToeGrid() {
+        deleteTicTacToeListeners();
+        document.getElementById("grid").remove();
+    }
+
+    function deleteTicTacToeListeners() {
         for ( let i = 0; i < 9; i++ ) {
             const gridSquare = document.getElementById(i);
             gridSquare.removeEventListener("click", makeAMove, true);
         }
-        document.getElementById("grid").remove();
+    }
+
+    function recreateTicTacToeListeners() {
+        for ( let i = 0; i < 9; i++ ) {
+            const gameBoardArray = gameBoard.gameBoardArray;
+            if ( gameBoardArray[i].claimed == "DEFAULT" ) {
+                const gridSquare = document.getElementById(i);
+                gridSquare.addEventListener("click", makeAMove, true);
+            }
+        }
     }
 
     function createGameBoardArray() {
@@ -152,8 +184,6 @@ const ticTacToeModule = (function() {
     // Fires when a gridSquare is clicked
     function makeAMove() {
         const gridSquare = this;
-        // Use grid id to search gameBoard.gameBoardArray..
-        // if ( gameBoard.gameBoardArray[this.id] == "DEFAULT" && this.id <= 9 && this.id >= 0 ) {
         if ( gameBoard.gameBoardArray[this.id].claimed == "DEFAULT" && this.id <= 9 && this.id >= 0 ) {
             deleteEventListener.call(gridSquare);
             updateGameBoardArray.call(gridSquare);
