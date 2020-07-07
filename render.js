@@ -95,6 +95,9 @@ const ticTacToeModule = (function() {
     // implicitly calls init from checkData upon event fire -->
     function createDataPrompt() {
         // renders 2 sections. 1 section says "1 Player" other section says "2 player"
+        const header = ticTacToe.appendChild(document.createElement("div"));
+        header.className = "header";
+        header.innerText = "Tic-Tac-Toe";
         const dataPromptWrapper = ticTacToe.appendChild(document.createElement("div"));
         dataPromptWrapper.className = "data-prompt-wrapper";
         const dataPrompt = dataPromptWrapper.appendChild(document.createElement("div"));
@@ -121,6 +124,8 @@ const ticTacToeModule = (function() {
         section1.removeEventListener("click", checkData, true);
         section2.removeEventListener("click", checkData, true);
         dataPromptWrapper.remove();
+        const header = document.getElementsByClassName("header")[0];
+        header.remove();
     }
 
     // calls init
