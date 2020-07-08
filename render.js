@@ -31,11 +31,9 @@ const ticTacToeModule = (function() {
                 deleteDataPrompt();
                 createGameBoardArray();
                 createTicTacToeGrid();
-                console.log("Created gameBoardArray and ticTacToeGrid");
             }
             else {
                 // render displays X's and O's on grid for each item in gameboard object that is filled with X's and O's
-                console.log("rendering x's and o's");
                 for ( let i = 0; i < 9; i++ ) {
                     const claimed = gameBoardArray[i].claimed;
                     if ( claimed != "DEFAULT" ) {
@@ -55,12 +53,24 @@ const ticTacToeModule = (function() {
     }
 
     function activateTheDestroyer() {
-        if ( currentStatus.onePlayer == true && currentStatus.activePlayer == "Player2" && currentStatus.match != true ) {
+        if ( currentStatus.onePlayer == true && currentStatus.activePlayer == "Player2" && currentStatus.match != true && currentStatus.endOfGame != true ) {
             // the Destroyer is invoked and goes ballastic on its enemies. This ruthless computer can beat any foe! JK
             deleteTicTacToeListeners();
             setTimeout( () => { 
                 const gameBoardArray = gameBoard.gameBoardArray;
-                const bestMove = findBestMove();
+                const bestMove = findWinningMoves();
+                if ( bestMove !== false) {
+                    gameBoard.gameBoardArray[bestMove].claimed = player2.mark;
+                }
+                else {
+                    breakout:
+                    for ( let i = 0; i < gameBoardArray.length; i ++ ) {
+                        if ( gameBoardArray[i].claimed == "DEFAULT" ) {
+                            gameBoard.gameBoardArray[i].claimed = player2.mark;
+                            break breakout;
+                        }
+                    }
+                }
                 currentStatus.activePlayer = "Player1";
                 recreateTicTacToeListeners();
                 init();
@@ -70,19 +80,37 @@ const ticTacToeModule = (function() {
 
     function checkForWinner() {
         checkForAMatch();
-        if (currentStatus.match == true ) {
+        checkForEndOfGame();
+        if (currentStatus.match == true || currentStatus.endOfGame == true ) {
             setTimeout(()=>{
                 resetPlayers();
                 resetGameBoardArray();
                 deleteTicTacToeGrid();
                 resetActivePlayer();
-                console.log(currentStatus.winner);
                 currentStatus.winner = "none";
                 currentStatus.match = false;
                 currentStatus.color = "DEFAULT";
                 currentStatus.onePlayer = "DEFAULT";
+                currentStatus.endOfGame = false;
                 init();
             }, 3000);
+        }
+    }
+
+    function checkForEndOfGame() {
+        const gameBoardArray = gameBoard.gameBoardArray;
+        if ( gameBoardArray.length != 0 ) {
+            let endOfGame = gameBoardArray.every( (item) => {
+                if ( item.claimed == "X" || item.claimed == "O" ) {
+                    return true;
+                }
+                else {
+                    return false;
+                }
+            });
+            if ( endOfGame ) {
+                currentStatus.endOfGame = true;
+            }
         }
     }
 
@@ -106,7 +134,6 @@ const ticTacToeModule = (function() {
         section2.className = "section2";
         section2.id = "two-player";
         section2.innerText = "2 Player";
-        console.log("created data prompt");
         // probably for 1 and 2 player for sections! :) Then call another function to getData for a 
         // form with name etc.. then that function will call checkData()
     }
@@ -130,8 +157,6 @@ const ticTacToeModule = (function() {
         }
         createPlayer(player1, "Joey", "X");
         createPlayer(player2, "Michael", "O");
-        console.log( "Player1: " + player1.name + " Player2: " + player2.mark );
-        console.log("Created player objects");
         init()
     }
 
@@ -187,10 +212,6 @@ const ticTacToeModule = (function() {
             deleteEventListener.call(gridSquare);
             updateGameBoardArray.call(gridSquare);
             changeActivePlayer();
-            console.log("You clicked square id: " + gridSquare.id );
-        }
-        else {
-            console.error("Error, was not able to log move -> makeAMove()");
         }
         init();
     }
@@ -287,8 +308,6 @@ const ticTacToeModule = (function() {
             ( item6claimed == player1mark ) ? currentStatus.winner = player1.name : currentStatus.winner = player2.name;
             drawLine(7);
         }
-
-        console.log("Winner: " + currentStatus.winner )
     }
 
     function getClassName(i) {
@@ -348,6 +367,7 @@ const ticTacToeModule = (function() {
 
     function findWinningMoves() {
         const gameBoardArray = gameBoard.gameBoardArray;
+        if (gameBoardArray.length == 0) return false;
         const claim0 = gameBoardArray[0].claimed + ";0"
         const claim1 = gameBoardArray[1].claimed + ";1";
         const claim2 = gameBoardArray[2].claimed + ";2"
@@ -397,7 +417,7 @@ const ticTacToeModule = (function() {
         else if ( claim3 == claim6 && claim6 != "DEFAULT" && claim0 != "X" && claim0 != "O" ) {
             return [location0, claim3];
         }
-        else if ( claim0 == claim6 && claim6 != "DEFAULT" && claim3 != "X" && claim0 != "O" ) {
+        else if ( claim0 == claim6 && claim6 != "DEFAULT" && claim3 != "X" && claim3 != "O" ) {
             return [location3, claim0];
         }
         else {
@@ -405,7 +425,7 @@ const ticTacToeModule = (function() {
         }
     }
 
-    return {init, findWinningMoves};
+    return {init, checkForEndOfGame};
 })();
 
 ticTacToeModule.init();
