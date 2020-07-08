@@ -60,13 +60,7 @@ const ticTacToeModule = (function() {
             deleteTicTacToeListeners();
             setTimeout( () => { 
                 const gameBoardArray = gameBoard.gameBoardArray;
-                breakout:
-                for ( let i = 0; i <= gameBoardArray.length-1; i++ ) {
-                    if ( gameBoardArray[i].claimed == "DEFAULT" ) {
-                        gameBoardArray[i].claimed = "O";
-                        break breakout;
-                    }
-                }
+                const bestMove = findBestMove();
                 currentStatus.activePlayer = "Player1";
                 recreateTicTacToeListeners();
                 init();
@@ -293,6 +287,7 @@ const ticTacToeModule = (function() {
             ( item6claimed == player1mark ) ? currentStatus.winner = player1.name : currentStatus.winner = player2.name;
             drawLine(7);
         }
+
         console.log("Winner: " + currentStatus.winner )
     }
 
@@ -338,7 +333,6 @@ const ticTacToeModule = (function() {
         console.log("draw line: " + lineNumber );
     }
 
-    //Last 2 functions change the active player
     function changeActivePlayer() {
         if ( currentStatus.activePlayer == "Player1" ) {
             currentStatus.activePlayer = "Player2";
@@ -352,7 +346,66 @@ const ticTacToeModule = (function() {
         currentStatus.activePlayer = "Player1";
     }
 
-    return {init};
+    function findWinningMoves() {
+        const gameBoardArray = gameBoard.gameBoardArray;
+        const claim0 = gameBoardArray[0].claimed + ";0"
+        const claim1 = gameBoardArray[1].claimed + ";1";
+        const claim2 = gameBoardArray[2].claimed + ";2"
+        const claim3 = gameBoardArray[3].claimed + ";3";
+        const claim4 = gameBoardArray[4].claimed + ";4";
+        const claim5 = gameBoardArray[5].claimed + ";5";
+        const claim6 = gameBoardArray[6].claimed + ";6";
+        const claim7 = gameBoardArray[7].claimed + ";7";
+        const claim8 = gameBoardArray[8].claimed + ";8";
+
+        const claimPatternArray = [[claim0, claim3, claim6], [claim1, claim4, claim7], [claim2, claim5, claim8], [claim0, claim1, claim2],[claim3, claim4, claim5], [claim6, claim7, claim8], [claim0, claim4, claim8], [claim2, claim4, claim6]];
+        let testedPatternedArray = [];
+        claimPatternArray.forEach( (claimArray) => {
+            testedPatternedArray.push( ( findPattern(...claimArray) ) );
+        } );
+        testedPatternedArray = testedPatternedArray.filter( (x) => ( x == -1 ) ? false: true );
+        const bestMoves = testedPatternedArray
+        let immediateWins,
+            playerWins;
+        if ( bestMoves.length != 0 ) {
+            immediateWins = bestMoves.filter( (item) => (item[1] == "O") ? true : false);
+            playerWins = bestMoves.filter( (item) => (item[1] == "X") ? true : false );
+        }
+        else {
+            return false;
+        }
+        if ( immediateWins[0] ) {
+            return +immediateWins[0][0];
+        }
+        if ( playerWins[0] ) {
+            return +playerWins[0][0];
+        }
+    }
+
+    // The location is where a winning spot resides. The "returned"-claim is the value of the other claims around this spot. This will tell->
+                                                 //->the computer if it's a computer winning move or a player winning move.................
+    function findPattern( spot0, spot3, spot6 ) {
+        let claim0 = spot0.split(";")[0];
+            let location0 = spot0.split(";")[1];
+        let claim3 = spot3.split(";")[0];
+            let location3 = spot3.split(";")[1];
+        let claim6 = spot6.split(";")[0];
+            let location6 = spot6.split(";")[1];
+        if ( claim0 == claim3 && claim3 != "DEFAULT" && claim6 != "X" && claim6 != "O") {
+            return [location6, claim0];
+        }
+        else if ( claim3 == claim6 && claim6 != "DEFAULT" && claim0 != "X" && claim0 != "O" ) {
+            return [location0, claim3];
+        }
+        else if ( claim0 == claim6 && claim6 != "DEFAULT" && claim3 != "X" && claim0 != "O" ) {
+            return [location3, claim0];
+        }
+        else {
+            return -1;
+        }
+    }
+
+    return {init, findWinningMoves};
 })();
 
 ticTacToeModule.init();
