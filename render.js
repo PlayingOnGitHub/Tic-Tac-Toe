@@ -74,7 +74,7 @@ const ticTacToeModule = (function() {
                 currentStatus.activePlayer = "Player1";
                 recreateTicTacToeListeners();
                 init();
-            }, 1000);
+            }, 700);
         }
     }
 
