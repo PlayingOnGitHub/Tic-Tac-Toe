@@ -176,8 +176,8 @@ const ticTacToeModule = (function() {
         const section = this;
         if (section.id == "one-player" ) {
             currentStatus.onePlayer = true;
-            createPlayer(player1, "FirstName", "X");
-            createPlayer(player2, "Computer", "O");
+            createPlayer(player1, "You", "X");
+            createPlayer(player2, "The Destroyer", "O");
         }
         else {
             event.preventDefault();
