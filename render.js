@@ -30,7 +30,9 @@ const ticTacToeModule = (function() {
             if ( gameBoardArray.length == 0 ) {
                 deleteDataPrompt();
                 createGameBoardArray();
+                renderPlayerOne();
                 createTicTacToeGrid();
+                renderPlayerTwo();
             }
             else {
                 // render displays X's and O's on grid for each item in gameboard object that is filled with X's and O's
@@ -47,6 +49,10 @@ const ticTacToeModule = (function() {
                         innerHTML += "\'>" + claimed + "</p>";
                         document.getElementById(i).innerHTML = innerHTML;
                     }
+                    else {
+                        let innerHTML = "";
+                        document.getElementById(i).innerHTML = innerHTML;
+                    }
                 }
             }
         }
@@ -56,6 +62,7 @@ const ticTacToeModule = (function() {
         if ( currentStatus.onePlayer == true && currentStatus.activePlayer == "Player2" && currentStatus.match != true && currentStatus.endOfGame != true ) {
             // the Destroyer is invoked and goes ballastic on its enemies. This ruthless computer can beat any foe! JK
             deleteTicTacToeListeners();
+            deleteRefreshButtonListener();
             setTimeout( () => { 
                 const gameBoardArray = gameBoard.gameBoardArray;
                 const bestMove = findWinningMoves();
@@ -73,6 +80,7 @@ const ticTacToeModule = (function() {
                 }
                 currentStatus.activePlayer = "Player1";
                 recreateTicTacToeListeners();
+                recreateRefreshButtonListener();
                 init();
             }, 700);
         }
@@ -82,10 +90,15 @@ const ticTacToeModule = (function() {
         checkForAMatch();
         checkForEndOfGame();
         if (currentStatus.match == true || currentStatus.endOfGame == true ) {
+            deleteRefreshButtonListener();
+            deleteTicTacToeListeners();
             setTimeout(()=>{
                 resetPlayers();
                 resetGameBoardArray();
+                deleteRenderPlayerOne();
                 deleteTicTacToeGrid();
+                deleteRenderPlayerTwo();
+                deleteContentWrapper();
                 resetActivePlayer();
                 currentStatus.winner = "none";
                 currentStatus.match = false;
@@ -130,7 +143,7 @@ const ticTacToeModule = (function() {
         section1.className = "section1";
         section1.id = "one-player";
         section1.innerText = "1 Player";
-        section2.addEventListener("click", checkData.bind(section2), true);
+        section2.addEventListener("click", request2Player, true);
         section2.className = "section2";
         section2.id = "two-player";
         section2.innerText = "2 Player";
@@ -142,8 +155,17 @@ const ticTacToeModule = (function() {
         const dataPromptWrapper = document.querySelector(".data-prompt-wrapper");
         const section1 = document.getElementById("one-player");
         const section2 = document.getElementById("two-player");
+        const player1Input = document.getElementById("player1");
+        const player2Input = document.getElementById("player2");
+        const button = document.getElementsByTagName("button")[0];
+        if ( player1Input ) {
+            button.removeEventListener("click", checkData, true);
+            player1Input.removeEventListener("focus", addRemovePlaceHolder, true );
+            player1Input.removeEventListener("blur", addRemovePlaceHolder, true );
+            player2Input.removeEventListener("focus", addRemovePlaceHolder, true );
+            player2Input.removeEventListener("blur", addRemovePlaceHolder, true );
+        }
         section1.removeEventListener("click", checkData, true);
-        section2.removeEventListener("click", checkData, true);
         dataPromptWrapper.remove();
         const header = document.getElementsByClassName("header")[0];
         header.remove();
@@ -154,15 +176,38 @@ const ticTacToeModule = (function() {
         const section = this;
         if (section.id == "one-player" ) {
             currentStatus.onePlayer = true;
+            createPlayer(player1, "FirstName", "X");
+            createPlayer(player2, "Computer", "O");
         }
-        createPlayer(player1, "Joey", "X");
-        createPlayer(player2, "Michael", "O");
-        init()
+        else {
+            event.preventDefault();
+            const player1value = document.getElementById("player1").value;
+            const player2value = document.getElementById("player2").value;
+
+            if ( typeof player1value == "string" && typeof player2value == "string" && player1value.trim().length != 0 && player2value.trim().length != 0 ) {
+                createPlayer(player1, player1value, "X");
+                createPlayer(player2, player2value, "O");
+            }
+
+        }
+        init();
+    }
+
+    function renderPlayerOne() {
+        const contentWrapper = ticTacToe.appendChild(document.createElement("div"));
+        contentWrapper.className = "content-wrapper";
+        const playerOne = contentWrapper.appendChild(document.createElement("div"));
+        playerOne.className = "players player1";
+        playerOne.innerText = player1.name;
     }
 
     // create GameBoard
     function createTicTacToeGrid() {
-        const grid = ticTacToe.appendChild(document.createElement("div"));
+        const contentWrapper = document.getElementsByClassName("content-wrapper")[0];
+        const gridWrapper = contentWrapper.appendChild(document.createElement("div"));
+        gridWrapper.className = "grid-wrapper";
+        addRefreshButton();
+        const grid = gridWrapper.appendChild(document.createElement("div"));
         grid.id = "grid";
         for ( let i = 0; i < 9; i++ ) {
             const gridSquare = grid.appendChild(document.createElement("div"));
@@ -173,9 +218,63 @@ const ticTacToeModule = (function() {
         }
     }
 
+    function addRefreshButton() {
+        const gridWrapper = document.getElementsByClassName("grid-wrapper")[0];
+        const refreshButton = gridWrapper.appendChild(document.createElement("div"));
+        refreshButton.className = "refreshButton"
+        const refreshImage = refreshButton.appendChild(document.createElement("img"));
+        refreshImage.src = "refresh.png";
+        refreshButton.addEventListener("click", resetGame, true );
+    }
+
+    function resetGame() {
+        const gameBoardArray = gameBoard.gameBoardArray;
+        gameBoardArray.forEach( (item, index) => {
+            const gridItem = document.getElementById(index);
+            if (item.claimed != "DEFAULT" ) {
+                gridItem.removeEventListener("click", makeAMove, true);
+            }
+            item.claimed = "DEFAULT";
+            gridItem.addEventListener("click", makeAMove, true);
+        });
+        currentStatus.activePlayer = "Player1";
+        currentStatus.match = false;
+        currentStatus.winner = "none";
+        init();
+    }
+
+    function renderPlayerTwo() {
+        // create grid. Edit the part where grid instead appends to grid-wrapper
+        const contentWrapper = document.getElementsByClassName("content-wrapper")[0];
+        const playerTwo = contentWrapper.appendChild(document.createElement("div"));
+        playerTwo.className = "players player2";
+        playerTwo.innerText = player2.name;
+    }
+
     function deleteTicTacToeGrid() {
-        deleteTicTacToeListeners();
-        document.getElementById("grid").remove();
+        document.getElementsByClassName("grid-wrapper")[0].remove();
+    }
+
+    function deleteRenderPlayerOne() {
+        const playerOne = document.getElementsByClassName("player1")[0];
+        playerOne.remove();
+    }
+
+    function deleteRenderPlayerTwo() {
+        const playerTwo = document.getElementsByClassName("player2")[0];
+        playerTwo.remove();
+    }
+
+    function deleteContentWrapper() {
+        const contentWrapper = document.getElementsByClassName("content-wrapper")[0];
+        contentWrapper.remove();
+    }
+
+    function deleteRefreshButtonListener() {
+        const refreshButton = document.getElementsByClassName("refreshButton")[0];
+        if ( refreshButton ) {
+            refreshButton.removeEventListener("click", resetGame, true );
+        }
     }
 
     function deleteTicTacToeListeners() {
@@ -188,11 +287,18 @@ const ticTacToeModule = (function() {
     function recreateTicTacToeListeners() {
         for ( let i = 0; i < 9; i++ ) {
             const gameBoardArray = gameBoard.gameBoardArray;
-            if ( gameBoardArray[i].claimed == "DEFAULT" ) {
-                const gridSquare = document.getElementById(i);
-                gridSquare.addEventListener("click", makeAMove, true);
+            if ( gameBoardArray ) {
+                if ( gameBoardArray[i].claimed == "DEFAULT" ) {
+                    const gridSquare = document.getElementById(i);
+                    gridSquare.addEventListener("click", makeAMove, true);
+                }
             }
         }
+    }
+
+    function recreateRefreshButtonListener() {
+        const refreshButton = document.getElementsByClassName("refreshButton")[0];
+        refreshButton.addEventListener("click", resetGame, true );
     }
 
     function createGameBoardArray() {
@@ -228,6 +334,57 @@ const ticTacToeModule = (function() {
         }
         else {
             gameBoard.gameBoardArray[gridSquare.id].claimed = player2.mark;
+        }
+    }
+
+    function request2Player() {
+        const section2 = document.getElementById("two-player");
+        section2.removeEventListener("click", request2Player, true );
+        const dataPromptWrapper = document.getElementsByClassName("data-prompt-wrapper")[0];
+        const form = dataPromptWrapper.appendChild(document.createElement("form"))
+        form.className = "enter-data";
+        const player1Label = form.appendChild(document.createElement("label"));
+        player1Label.className = "playerLabel";
+        player1Label.htmlFor = "player1";
+        player1Label.innerText = "Player 1: ";
+        const player1Input = player1Label.appendChild(document.createElement("input"));
+        player1Input.type = "text";
+        player1Input.id = "player1";
+        player1Input.htmlFor = "player1";
+        player1Input.className = "playerInput";
+        player1Input.name = "player1";
+        player1Input.placeholder = "Enter name here...";
+        const player2Label = form.appendChild(document.createElement("label"));
+        player2Label.className = "playerLabel";
+        player2Label.htmlFor = "player2";
+        player2Label.innerText = "Player 2: ";
+        const player2Input = player2Label.appendChild(document.createElement("input"));
+        player2Input.type = "text";
+        player2Input.id = "player2";
+        player2Input.className = "playerInput";
+        player2Input.name = "player2";
+        player2Input.placeholder = "Enter name here...";
+        player1Input.addEventListener("focus", addRemovePlaceHolder, true );
+        player1Input.addEventListener("blur", addRemovePlaceHolder, true );
+        player2Input.addEventListener("focus", addRemovePlaceHolder, true );
+        player2Input.addEventListener("blur", addRemovePlaceHolder, true );
+
+        const button = form.appendChild(document.createElement("button"));
+        button.innerText = "Go!";
+        button.className = "goButton";
+        button.addEventListener("click", checkData, true );
+        
+        // button.addEventListener("click", checkData, true );
+
+    }
+
+    function addRemovePlaceHolder() {
+        const thisInput = this;
+        if (thisInput.placeholder.length != 0 ) {
+            thisInput.placeholder = "";
+        }
+        else {
+            thisInput.placeholder = "Enter name here...";
         }
     }
 
@@ -425,7 +582,7 @@ const ticTacToeModule = (function() {
         }
     }
 
-    return {init, checkForEndOfGame};
+    return {init, checkForEndOfGame, gameBoard, render, init};
 })();
 
 ticTacToeModule.init();
