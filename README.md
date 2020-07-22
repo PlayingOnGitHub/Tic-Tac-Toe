@@ -14,4 +14,7 @@ I saw something where you place functions like "cashdom" inside of an object lit
 To do that, I may have to check to see if certain ID's exist or hardcode the IDs into my HTML. These are some things that I
 could do but I feel that I've learned a lot from this project and I'm ready to learn more.
 
+I also feel really good about my pattern function at the bottom. I really impressed myself with how I was able to shove
+Tic Tac Toe patterns into a function and spit out real data.
+
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
