@@ -6,11 +6,11 @@ const ticTacToeModule = (function() {
     const currentStatus = { activePlayer: "Player1", match: false, winner: "none", color: "DEFAULT", onePlayer: "DEFAULT" };
     const ticTacToe = document.getElementById("ticTacToe");
 
-    // this will mix values into player1 and player2 when called
     const createPlayer = (player, playerName, playerMark) => {
         return Object.assign( player, Object.create({}), {name: playerName, mark: playerMark} );
     }
 
+    // Run everything in the module in a loop
     function init() {
         checkForWinner();
         render();
@@ -19,14 +19,14 @@ const ticTacToeModule = (function() {
 
     function render() {
         const gameBoardArray = gameBoard.gameBoardArray;
+        // One player or two player?
         if ( player1.name == undefined || player1.name == "" ) {
-            // asks user if they want to play 1 player or 2 player
             if ( !(document.getElementById("data-prompt")) ) {
                 createDataPrompt();
             }
         }
+        // Now, render the game
         else {
-            // If (gameboard object array does not exist or is empty and if an html grid is not already present) {
             if ( gameBoardArray.length == 0 ) {
                 deleteDataPrompt();
                 createGameBoardArray();
@@ -35,25 +35,28 @@ const ticTacToeModule = (function() {
                 renderPlayerTwo();
             }
             else {
-                // render displays X's and O's on grid for each item in gameboard object that is filled with X's and O's
-                for ( let i = 0; i < 9; i++ ) {
-                    const claimed = gameBoardArray[i].claimed;
-                    if ( claimed != "DEFAULT" ) {
-                        let innerHTML = "<p style=\'color:";
-                        if ( claimed == "X" ) {
-                            innerHTML += "red";
-                        }
-                        else if ( claimed == "O" ) {
-                            innerHTML += "blue";
-                        }
-                        innerHTML += "\'>" + claimed + "</p>";
-                        document.getElementById(i).innerHTML = innerHTML;
-                    }
-                    else {
-                        let innerHTML = "";
-                        document.getElementById(i).innerHTML = innerHTML;
-                    }
+                renderXsAndOs(gameBoardArray);
+            }
+        }
+    }
+
+    function renderXsAndOs(gameBoardArray) {
+        for ( let i = 0; i < 9; i++ ) {
+            const claimed = gameBoardArray[i].claimed;
+            if ( claimed != "DEFAULT" ) {
+                let innerHTML = "<p style=\'color:";
+                if ( claimed == "X" ) {
+                    innerHTML += "red";
                 }
+                else if ( claimed == "O" ) {
+                    innerHTML += "blue";
+                }
+                innerHTML += "\'>" + claimed + "</p>";
+                document.getElementById(i).innerHTML = innerHTML;
+            }
+            else {
+                let innerHTML = "";
+                document.getElementById(i).innerHTML = innerHTML;
             }
         }
     }
@@ -63,27 +66,31 @@ const ticTacToeModule = (function() {
             // the Destroyer is invoked and goes ballastic on its enemies. This ruthless computer can beat any foe! JK
             deleteTicTacToeListeners();
             deleteRefreshButtonListener();
-            setTimeout( () => { 
-                const gameBoardArray = gameBoard.gameBoardArray;
-                const bestMove = findWinningMoves();
-                if ( bestMove !== false) {
-                    gameBoard.gameBoardArray[bestMove].claimed = player2.mark;
-                }
-                else {
-                    breakout:
-                    for ( let i = 0; i < gameBoardArray.length; i ++ ) {
-                        if ( gameBoardArray[i].claimed == "DEFAULT" ) {
-                            gameBoard.gameBoardArray[i].claimed = player2.mark;
-                            break breakout;
-                        }
+            makeDestroyerMove();
+        }
+    }
+
+    function makeDestroyerMove() {
+        setTimeout( () => { 
+            const gameBoardArray = gameBoard.gameBoardArray;
+            const bestMove = findWinningMoves();
+            if ( bestMove !== false) {
+                gameBoard.gameBoardArray[bestMove].claimed = player2.mark;
+            }
+            else {
+                breakout:
+                for ( let i = 0; i < gameBoardArray.length; i ++ ) {
+                    if ( gameBoardArray[i].claimed == "DEFAULT" ) {
+                        gameBoard.gameBoardArray[i].claimed = player2.mark;
+                        break breakout;
                     }
                 }
-                currentStatus.activePlayer = "Player1";
-                recreateTicTacToeListeners();
-                recreateRefreshButtonListener();
-                init();
-            }, 700);
-        }
+            }
+            currentStatus.activePlayer = "Player1";
+            recreateTicTacToeListeners();
+            recreateRefreshButtonListener();
+            init();
+        }, 700);
     }
 
     function checkForWinner() {
@@ -582,7 +589,7 @@ const ticTacToeModule = (function() {
         }
     }
 
-    return {init, checkForEndOfGame, gameBoard, render, init};
+    return {init};
 })();
 
 ticTacToeModule.init();
